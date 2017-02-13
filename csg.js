@@ -91,6 +91,7 @@ The vertex normal has been removed since it complicates retesselation. It's not 
 for solid CAD anyway.
 
 */
+var CSG = {};
 
 (function(module) {
 
@@ -140,7 +141,7 @@ for solid CAD anyway.
         });
         var csg = CSG.fromPolygons(polygons);
         csg.isCanonicalized = obj.isCanonicalized;
-        csg.isRetesselated  = obj.isRetesselated;
+        csg.isRetesselated = obj.isRetesselated;
         return csg;
     };
 
@@ -235,7 +236,7 @@ for solid CAD anyway.
 
             // combine csg pairs in a way that forms a balanced binary tree pattern
             for (var i = 1; i < csgs.length; i += 2) {
-                csgs.push(csgs[i-1].unionSub(csgs[i]));
+                csgs.push(csgs[i - 1].unionSub(csgs[i]));
             }
 
             return csgs[i - 1].reTesselated().canonicalized();
@@ -959,7 +960,7 @@ for solid CAD anyway.
         getTransformationAndInverseTransformationToFlatLying: function() {
             if (this.polygons.length === 0) {
                 var m = new CSG.Matrix4x4(); // unity
-                return [m,m];
+                return [m, m];
             } else {
                 // get a list of unique planes in the CSG:
                 var csg = this.canonicalized();
@@ -1046,14 +1047,14 @@ for solid CAD anyway.
             var cags = [];
             this.polygons.filter(function(p) {
                     // only return polys in plane, others may disturb result
-                    return p.plane.normal.minus(orthobasis.plane.normal).lengthSquared() < EPS*EPS;
+                    return p.plane.normal.minus(orthobasis.plane.normal).lengthSquared() < EPS * EPS;
                 })
                 .map(function(polygon) {
                     var cag = polygon.projectToOrthoNormalBasis(orthobasis);
                     if (cag.sides.length > 0) {
                         cags.push(cag);
                     }
-            });
+                });
             var result = new CAG().union(cags);
             return result;
         },
@@ -1063,7 +1064,7 @@ for solid CAD anyway.
             var plane1 = orthobasis.plane;
             var plane2 = orthobasis.plane.flipped();
             plane1 = new CSG.Plane(plane1.normal, plane1.w);
-            plane2 = new CSG.Plane(plane2.normal, plane2.w + 5*EPS);
+            plane2 = new CSG.Plane(plane2.normal, plane2.w + 5 * EPS);
             var cut3d = this.cutByPlane(plane1);
             cut3d = cut3d.cutByPlane(plane2);
             return cut3d.projectToOrthoNormalBasis(orthobasis);
@@ -1315,30 +1316,30 @@ for solid CAD anyway.
                                                 newvertices.splice(insertionvertextagindex, 0, endvertex);
                                                 var newpolygon = new CSG.Polygon(newvertices, polygon.shared /*polygon.plane*/ );
 
-// FIX
-                                               //calculate plane with differents point
-                                                if(isNaN(newpolygon.plane.w)){
+                                                // FIX
+                                                //calculate plane with differents point
+                                                if (isNaN(newpolygon.plane.w)) {
 
                                                     var found = false,
-                                                        loop = function(callback){
-                                                            newpolygon.vertices.forEach(function(item){
-                                                                if(found) return;
+                                                        loop = function(callback) {
+                                                            newpolygon.vertices.forEach(function(item) {
+                                                                if (found) return;
                                                                 callback(item);
                                                             })
                                                         };
 
-                                                    loop(function(a){
+                                                    loop(function(a) {
                                                         loop(function(b) {
-                                                            loop(function (c) {
+                                                            loop(function(c) {
                                                                 newpolygon.plane = CSG.Plane.fromPoints(a.pos, b.pos, c.pos)
-                                                                if(!isNaN(newpolygon.plane.w)) {
+                                                                if (!isNaN(newpolygon.plane.w)) {
                                                                     found = true;
                                                                 }
                                                             })
                                                         })
                                                     })
                                                 }
-// FIX
+                                                // FIX
 
                                                 polygons[polygonindex] = newpolygon;
 
@@ -1378,7 +1379,7 @@ for solid CAD anyway.
             }
             if (!sidemapisempty) {
                 // throw new Error("!sidemapisempty");
-            OpenJsCad.log("!sidemapisempty");
+                OpenJsCad.log("!sidemapisempty");
             }
             return csg;
         },
@@ -1854,20 +1855,20 @@ for solid CAD anyway.
         cuberadius = cuberadius.abs(); // negative radii make no sense
         var resolution = CSG.parseOptionAsInt(options, "resolution", CSG.defaultResolution3D);
         if (resolution < 4) resolution = 4;
-        if (resolution%2 == 1 && resolution < 8) resolution = 8; // avoid ugly
+        if (resolution % 2 == 1 && resolution < 8) resolution = 8; // avoid ugly
         var roundradius = CSG.parseOptionAs3DVector(options, "roundradius", [0.2, 0.2, 0.2]);
         // slight hack for now - total radius stays ok
         roundradius = CSG.Vector3D.Create(Math.max(roundradius.x, minRR), Math.max(roundradius.y, minRR), Math.max(roundradius.z, minRR));
         var innerradius = cuberadius.minus(roundradius);
         if (innerradius.x < 0 || innerradius.y < 0 || innerradius.z < 0) {
-            throw('roundradius <= radius!');
+            throw ('roundradius <= radius!');
         }
-        var res = CSG.sphere({radius:1, resolution:resolution});
+        var res = CSG.sphere({ radius: 1, resolution: resolution });
         res = res.scale(roundradius);
-        innerradius.x > EPS && (res = res.stretchAtPlane([1, 0, 0], [0, 0, 0], 2*innerradius.x));
-        innerradius.y > EPS && (res = res.stretchAtPlane([0, 1, 0], [0, 0, 0], 2*innerradius.y));
-        innerradius.z > EPS && (res = res.stretchAtPlane([0, 0, 1], [0, 0, 0], 2*innerradius.z));
-        res = res.translate([-innerradius.x+center.x, -innerradius.y+center.y, -innerradius.z+center.z]);
+        innerradius.x > EPS && (res = res.stretchAtPlane([1, 0, 0], [0, 0, 0], 2 * innerradius.x));
+        innerradius.y > EPS && (res = res.stretchAtPlane([0, 1, 0], [0, 0, 0], 2 * innerradius.y));
+        innerradius.z > EPS && (res = res.stretchAtPlane([0, 0, 1], [0, 0, 0], 2 * innerradius.z));
+        res = res.translate([-innerradius.x + center.x, -innerradius.y + center.y, -innerradius.z + center.z]);
         res = res.reTesselated();
         res.properties.roundedCube = new CSG.Properties();
         res.properties.roundedCube.center = new CSG.Vertex(center);
@@ -1901,13 +1902,13 @@ for solid CAD anyway.
                 return new CSG.Vertex(pt);
             });
         var faces = CSG.parseOption(options, "faces", [
-                [0, 1, 4],
-                [1, 2, 4],
-                [2, 3, 4],
-                [3, 0, 4],
-                [1, 0, 3],
-                [2, 1, 3]
-            ]);
+            [0, 1, 4],
+            [1, 2, 4],
+            [2, 3, 4],
+            [3, 0, 4],
+            [1, 0, 3],
+            [2, 1, 3]
+        ]);
         // openscad convention defines inward normals - so we have to invert here
         faces.forEach(function(face) {
             face.reverse();
@@ -2507,8 +2508,8 @@ for solid CAD anyway.
         getSignedVolume: function() {
             var signedVolume = 0;
             for (var i = 0; i < this.vertices.length - 2; i++) {
-                signedVolume += this.vertices[0].pos.dot(this.vertices[i+1].pos
-                    .cross(this.vertices[i+2].pos));
+                signedVolume += this.vertices[0].pos.dot(this.vertices[i + 1].pos
+                    .cross(this.vertices[i + 2].pos));
             }
             signedVolume /= 6;
             return signedVolume;
@@ -2518,8 +2519,8 @@ for solid CAD anyway.
         getArea: function() {
             var polygonArea = 0;
             for (var i = 0; i < this.vertices.length - 2; i++) {
-                polygonArea += this.vertices[i+1].pos.minus(this.vertices[0].pos)
-                    .cross(this.vertices[i+2].pos.minus(this.vertices[i+1].pos)).length();
+                polygonArea += this.vertices[i + 1].pos.minus(this.vertices[0].pos)
+                    .cross(this.vertices[i + 2].pos.minus(this.vertices[i + 1].pos)).length();
             }
             polygonArea /= 2;
             return polygonArea;
@@ -2922,8 +2923,7 @@ for solid CAD anyway.
     // Holds the shared properties for each polygon (currently only color)
     // Constructor expects a 4 element array [r,g,b,a], values from 0 to 1, or null
     CSG.Polygon.Shared = function(color) {
-        if(color !== null)
-        {
+        if (color !== null) {
             if (color.length != 4) {
                 throw new Error("Expecting 4 element array");
             }
@@ -2940,18 +2940,17 @@ for solid CAD anyway.
     // var s = CSG.Polygon.Shared.fromColor([r,g,b [,a]])
     CSG.Polygon.Shared.fromColor = function(args) {
         var color;
-        if(arguments.length == 1) {
+        if (arguments.length == 1) {
             color = arguments[0].slice(); // make deep copy
-        }
-        else {
+        } else {
             color = [];
-            for(var i=0; i < arguments.length; i++) {
+            for (var i = 0; i < arguments.length; i++) {
                 color.push(arguments[i]);
             }
         }
-        if(color.length == 3) {
+        if (color.length == 3) {
             color.push(1);
-        } else if(color.length != 4) {
+        } else if (color.length != 4) {
             throw new Error("setColor expects either an array with 3 or 4 elements, or 3 or 4 parameters.");
         }
         return new CSG.Polygon.Shared(color);
@@ -3054,7 +3053,7 @@ for solid CAD anyway.
             var children = [this];
             var queue = [children];
             var i, j, l, node;
-            for (i = 0; i < queue.length; ++i ) { // queue size can change in loop, don't cache length
+            for (i = 0; i < queue.length; ++i) { // queue size can change in loop, don't cache length
                 children = queue[i];
                 for (j = 0, l = children.length; j < l; j++) { // ok to cache length
                     node = children[j];
@@ -3075,7 +3074,8 @@ for solid CAD anyway.
         //  and added to both arrays.
         splitByPlane: function(plane, coplanarfrontnodes, coplanarbacknodes, frontnodes, backnodes) {
             if (this.children.length) {
-                var queue = [this.children], i, j, l, node, nodes;
+                var queue = [this.children],
+                    i, j, l, node, nodes;
                 for (i = 0; i < queue.length; i++) { // queue.length can increase, do not cache
                     nodes = queue[i];
                     for (j = 0, l = nodes.length; j < l; j++) { // ok to cache length
@@ -3094,7 +3094,7 @@ for solid CAD anyway.
         },
 
         // only to be called for nodes with no children
-        _splitByPlane: function (plane, coplanarfrontnodes, coplanarbacknodes, frontnodes, backnodes) {
+        _splitByPlane: function(plane, coplanarfrontnodes, coplanarbacknodes, frontnodes, backnodes) {
             var polygon = this.polygon;
             if (polygon) {
                 var bound = polygon.boundingSphere();
@@ -3249,9 +3249,9 @@ for solid CAD anyway.
             var i, node;
             for (var i = 0; i < queue.length; i++) {
                 node = queue[i];
-                if(node.plane) node.plane = node.plane.flipped();
-                if(node.front) queue.push(node.front);
-                if(node.back) queue.push(node.back);
+                if (node.plane) node.plane = node.plane.flipped();
+                if (node.front) queue.push(node.front);
+                if (node.back) queue.push(node.back);
                 var temp = node.front;
                 node.front = node.back;
                 node.back = temp;
@@ -3261,7 +3261,7 @@ for solid CAD anyway.
         // clip polygontreenodes to our plane
         // calls remove() for all clipped PolygonTreeNodes
         clipPolygons: function(polygontreenodes, alsoRemovecoplanarFront) {
-            var args = {'node': this, 'polygontreenodes': polygontreenodes }
+            var args = { 'node': this, 'polygontreenodes': polygontreenodes }
             var node;
             var stack = [];
 
@@ -3270,25 +3270,25 @@ for solid CAD anyway.
                 polygontreenodes = args.polygontreenodes;
 
                 // begin "function"
-                if(node.plane) {
+                if (node.plane) {
                     var backnodes = [];
                     var frontnodes = [];
                     var coplanarfrontnodes = alsoRemovecoplanarFront ? backnodes : frontnodes;
                     var plane = node.plane;
                     var numpolygontreenodes = polygontreenodes.length;
-                    for(i = 0; i < numpolygontreenodes; i++) {
+                    for (i = 0; i < numpolygontreenodes; i++) {
                         var node1 = polygontreenodes[i];
-                        if(!node1.isRemoved()) {
+                        if (!node1.isRemoved()) {
                             node1.splitByPlane(plane, coplanarfrontnodes, backnodes, frontnodes, backnodes);
                         }
                     }
 
-                    if(node.front && (frontnodes.length > 0)) {
-                        stack.push({'node': node.front, 'polygontreenodes': frontnodes});
+                    if (node.front && (frontnodes.length > 0)) {
+                        stack.push({ 'node': node.front, 'polygontreenodes': frontnodes });
                     }
                     var numbacknodes = backnodes.length;
                     if (node.back && (numbacknodes > 0)) {
-                        stack.push({'node': node.back, 'polygontreenodes': backnodes});
+                        stack.push({ 'node': node.back, 'polygontreenodes': backnodes });
                     } else {
                         // there's nothing behind this plane. Delete the nodes behind this plane:
                         for (var i = 0; i < numbacknodes; i++) {
@@ -3303,19 +3303,20 @@ for solid CAD anyway.
         // Remove all polygons in this BSP tree that are inside the other BSP tree
         // `tree`.
         clipTo: function(tree, alsoRemovecoplanarFront) {
-            var node = this, stack = [];
+            var node = this,
+                stack = [];
             do {
-                if(node.polygontreenodes.length > 0) {
+                if (node.polygontreenodes.length > 0) {
                     tree.rootnode.clipPolygons(node.polygontreenodes, alsoRemovecoplanarFront);
                 }
-                if(node.front) stack.push(node.front);
-                if(node.back) stack.push(node.back);
+                if (node.front) stack.push(node.front);
+                if (node.back) stack.push(node.back);
                 node = stack.pop();
-            } while(typeof(node) !== 'undefined');
+            } while (typeof(node) !== 'undefined');
         },
 
         addPolygonTreeNodes: function(polygontreenodes) {
-            var args = {'node': this, 'polygontreenodes': polygontreenodes };
+            var args = { 'node': this, 'polygontreenodes': polygontreenodes };
             var node;
             var stack = [];
             do {
@@ -3334,17 +3335,17 @@ for solid CAD anyway.
                 var frontnodes = [];
                 var backnodes = [];
 
-                for (var i = 0, n = polygontreenodes.length ; i < n; ++i) {
+                for (var i = 0, n = polygontreenodes.length; i < n; ++i) {
                     polygontreenodes[i].splitByPlane(_this.plane, _this.polygontreenodes, backnodes, frontnodes, backnodes);
                 }
 
                 if (frontnodes.length > 0) {
                     if (!node.front) node.front = new CSG.Node(node);
-                    stack.push({'node': node.front, 'polygontreenodes': frontnodes});
+                    stack.push({ 'node': node.front, 'polygontreenodes': frontnodes });
                 }
                 if (backnodes.length > 0) {
                     if (!node.back) node.back = new CSG.Node(node);
-                    stack.push({'node': node.back, 'polygontreenodes': backnodes});
+                    stack.push({ 'node': node.back, 'polygontreenodes': backnodes });
                 }
 
                 args = stack.pop();
@@ -4678,19 +4679,18 @@ for solid CAD anyway.
             // truly identical (referring to the same CSG.Vertex object).
             // Remove duplicate vertices:
             var newvertices_dedup = [];
-            if(newvertices.length > 0) {
-                var prevvertextag = newvertices[newvertices.length-1].getTag();
+            if (newvertices.length > 0) {
+                var prevvertextag = newvertices[newvertices.length - 1].getTag();
                 newvertices.forEach(function(vertex) {
                     var vertextag = vertex.getTag();
-                    if(vertextag != prevvertextag)
-                    {
+                    if (vertextag != prevvertextag) {
                         newvertices_dedup.push(vertex);
                     }
                     prevvertextag = vertextag;
                 });
             }
             // If it's degenerate, remove all vertices:
-            if(newvertices_dedup.length < 3) {
+            if (newvertices_dedup.length < 3) {
                 newvertices_dedup = [];
             }
             return new CSG.Polygon(newvertices_dedup, newshared, newplane);
@@ -4702,8 +4702,7 @@ for solid CAD anyway.
             sourcecsg.polygons.forEach(function(polygon) {
                 var newpolygon = _this.getPolygon(polygon);
                 // see getPolygon above: we may get a polygon with no vertices, discard it:
-                if(newpolygon.vertices.length >= 3)
-                {
+                if (newpolygon.vertices.length >= 3) {
                     newpolygons.push(newpolygon);
                 }
             });
@@ -4896,7 +4895,7 @@ for solid CAD anyway.
         } else if (arguments.length == 2) {
             return CSG.ConnectorList._fromPath2DExplicit(path2D, arg1);
         } else {
-            throw("call with path2D and either 2 direction vectors, or a function returning direction vectors");
+            throw ("call with path2D and either 2 direction vectors, or a function returning direction vectors");
         }
     };
 
@@ -4915,10 +4914,10 @@ for solid CAD anyway.
         path2D.points.slice(1, pathLen - 1).forEach(function(p2, i) {
             axis = path2D.points[i + 2].minus(path2D.points[i]).toVector3D(0);
             result.appendConnector(new CSG.Connector(p2.toVector3D(0), axis,
-              CSG.ConnectorList.defaultNormal));
+                CSG.ConnectorList.defaultNormal));
         }, this);
         result.appendConnector(new CSG.Connector(path2D.points[pathLen - 1], end,
-          CSG.ConnectorList.defaultNormal));
+            CSG.ConnectorList.defaultNormal));
         result.closed = path2D.closed;
         return result;
     };
@@ -4937,7 +4936,7 @@ for solid CAD anyway.
             path2D.points.map(function(p2, i) {
                 return new CSG.Connector(p2.toVector3D(0),
                     CSG.Vector3D.Create(1, 0, 0).rotateZ(getAngle(angleIsh, p2, i)),
-                      CSG.ConnectorList.defaultNormal);
+                    CSG.ConnectorList.defaultNormal);
             }, this)
         );
         result.closed = path2D.closed;
@@ -4961,6 +4960,7 @@ for solid CAD anyway.
          */
         followWith: function(cagish) {
             this.verify();
+
             function getCag(cagish, connector) {
                 if (typeof cagish == "function") {
                     cagish = cagish(connector.point, connector.axisvector, connector.normalvector);
@@ -4968,7 +4968,8 @@ for solid CAD anyway.
                 return cagish;
             }
 
-            var polygons = [], currCag;
+            var polygons = [],
+                currCag;
             var prevConnector = this.connectors_[this.connectors_.length - 1];
             var prevCag = getCag(cagish, prevConnector);
             // add walls
@@ -4976,16 +4977,19 @@ for solid CAD anyway.
                 currCag = getCag(cagish, connector);
                 if (notFirst || this.closed) {
                     polygons.push.apply(polygons, prevCag._toWallPolygons({
-                        toConnector1: prevConnector, toConnector2: connector, cag: currCag}));
+                        toConnector1: prevConnector,
+                        toConnector2: connector,
+                        cag: currCag
+                    }));
                 } else {
                     // it is the first, and shape not closed -> build start wall
                     polygons.push.apply(polygons,
-                        currCag._toPlanePolygons({toConnector: connector, flipped: true}));
+                        currCag._toPlanePolygons({ toConnector: connector, flipped: true }));
                 }
                 if (notFirst == this.connectors_.length - 1 && !this.closed) {
                     // build end wall
                     polygons.push.apply(polygons,
-                        currCag._toPlanePolygons({toConnector: connector}));
+                        currCag._toPlanePolygons({ toConnector: connector }));
                 }
                 prevCag = currCag;
                 prevConnector = connector;
@@ -5001,10 +5005,10 @@ for solid CAD anyway.
             for (var i = 0; i < this.connectors_.length - 1; i++) {
                 connI = this.connectors_[i], connI1 = this.connectors_[i + 1];
                 if (connI1.point.minus(connI.point).dot(connI.axisvector) <= 0) {
-                    throw("Invalid ConnectorList. Each connectors position needs to be within a <90deg range of previous connectors axisvector");
+                    throw ("Invalid ConnectorList. Each connectors position needs to be within a <90deg range of previous connectors axisvector");
                 }
                 if (connI.axisvector.dot(connI1.axisvector) <= 0) {
-                    throw("invalid ConnectorList. No neighboring connectors axisvectors may span a >=90deg angle");
+                    throw ("invalid ConnectorList. No neighboring connectors axisvectors may span a >=90deg angle");
                 }
             }
         }
@@ -5332,9 +5336,9 @@ for solid CAD anyway.
             var startpoint = this.points[this.points.length - 1];
             endpoint = new CSG.Vector2D(endpoint);
             // round to precision in order to have determinate calculations
-            xradius = Math.round(xradius*decimals)/decimals;
-            yradius = Math.round(yradius*decimals)/decimals;
-            endpoint = new CSG.Vector2D(Math.round(endpoint.x*decimals)/decimals,Math.round(endpoint.y*decimals)/decimals);
+            xradius = Math.round(xradius * decimals) / decimals;
+            yradius = Math.round(yradius * decimals) / decimals;
+            endpoint = new CSG.Vector2D(Math.round(endpoint.x * decimals) / decimals, Math.round(endpoint.y * decimals) / decimals);
 
             var sweep_flag = !clockwise;
             var newpoints = [];
@@ -5353,9 +5357,9 @@ for solid CAD anyway.
                 var minushalfdistance = startpoint.minus(endpoint).times(0.5);
                 // F.6.5.1:
                 // round to precision in order to have determinate calculations
-                var x = Math.round((cosphi * minushalfdistance.x + sinphi * minushalfdistance.y)*decimals)/decimals;
-                var y = Math.round((-sinphi * minushalfdistance.x + cosphi * minushalfdistance.y)*decimals)/decimals;
-                var start_translated = new CSG.Vector2D(x,y);
+                var x = Math.round((cosphi * minushalfdistance.x + sinphi * minushalfdistance.y) * decimals) / decimals;
+                var y = Math.round((-sinphi * minushalfdistance.x + cosphi * minushalfdistance.y) * decimals) / decimals;
+                var start_translated = new CSG.Vector2D(x, y);
                 // F.6.6.2:
                 var biglambda = (start_translated.x * start_translated.x) / (xradius * xradius) + (start_translated.y * start_translated.y) / (yradius * yradius);
                 if (biglambda > 1.0) {
@@ -5364,8 +5368,8 @@ for solid CAD anyway.
                     xradius *= sqrtbiglambda;
                     yradius *= sqrtbiglambda;
                     // round to precision in order to have determinate calculations
-                    xradius = Math.round(xradius*decimals)/decimals;
-                    yradius = Math.round(yradius*decimals)/decimals;
+                    xradius = Math.round(xradius * decimals) / decimals;
+                    yradius = Math.round(yradius * decimals) / decimals;
                 }
                 // F.6.5.2:
                 var multiplier1 = Math.sqrt((xradius * xradius * yradius * yradius - xradius * xradius * start_translated.y * start_translated.y - yradius * yradius * start_translated.x * start_translated.x) / (xradius * xradius * start_translated.y * start_translated.y + yradius * yradius * start_translated.x * start_translated.x));
@@ -5450,12 +5454,12 @@ for solid CAD anyway.
         };
 
         prot.rotateEulerAngles = function(alpha, beta, gamma, position) {
-            position = position || [0,0,0];
+            position = position || [0, 0, 0];
 
             var Rz1 = CSG.Matrix4x4.rotationZ(alpha);
-            var Rx  = CSG.Matrix4x4.rotationX(beta);
+            var Rx = CSG.Matrix4x4.rotationX(beta);
             var Rz2 = CSG.Matrix4x4.rotationZ(gamma);
-            var T   = CSG.Matrix4x4.translation(new CSG.Vector3D(position));
+            var T = CSG.Matrix4x4.translation(new CSG.Vector3D(position));
 
             return this.transform(Rz2.multiply(Rx).multiply(Rz1).multiply(T));
         };
@@ -5474,7 +5478,7 @@ for solid CAD anyway.
             var b = this.getBounds();
             return this.translate(axes.map(function(a) {
                 return cAxes.indexOf(a) > -1 ?
-                    -(b[0][a] + b[1][a])/2 : 0;
+                    -(b[0][a] + b[1][a]) / 2 : 0;
             }));
         };
     };
@@ -5555,11 +5559,11 @@ for solid CAD anyway.
     // as constructed by CAG._toCSGWall(-1, 1). This is so we can use the 3D union(), intersect() etc
     CAG.fromFakeCSG = function(csg) {
         var sides = csg.polygons.map(function(p) {
-            return CAG.Side._fromFakePolygon(p);
+                return CAG.Side._fromFakePolygon(p);
             })
             .filter(function(s) {
                 return s !== null;
-        });
+            });
         return CAG.fromSides(sides);
     };
 
@@ -5622,8 +5626,10 @@ for solid CAD anyway.
         r = r.abs(); // negative radii make no sense
         var res = CSG.parseOptionAsInt(options, "resolution", CSG.defaultResolution2D);
 
-        var e2 = new CSG.Path2D([[c.x,c.y + r.y]]);
-        e2 = e2.appendArc([c.x,c.y - r.y], {
+        var e2 = new CSG.Path2D([
+            [c.x, c.y + r.y]
+        ]);
+        e2 = e2.appendArc([c.x, c.y - r.y], {
             xradius: r.x,
             yradius: r.y,
             xaxisrotation: 0,
@@ -5631,7 +5637,7 @@ for solid CAD anyway.
             clockwise: true,
             large: false,
         });
-        e2 = e2.appendArc([c.x,c.y + r.y], {
+        e2 = e2.appendArc([c.x, c.y + r.y], {
             xradius: r.x,
             yradius: r.y,
             xaxisrotation: 0,
@@ -5763,9 +5769,11 @@ for solid CAD anyway.
         _toVector3DPairs: function(m) {
             // transform m
             var pairs = this.sides.map(function(side) {
-                var p0 = side.vertex0.pos, p1 = side.vertex1.pos;
+                var p0 = side.vertex0.pos,
+                    p1 = side.vertex1.pos;
                 return [CSG.Vector3D.Create(p0.x, p0.y, 0),
-                    CSG.Vector3D.Create(p1.x, p1.y, 0)];
+                    CSG.Vector3D.Create(p1.x, p1.y, 0)
+                ];
             });
             if (typeof m != 'undefined') {
                 pairs = pairs.map(function(pair) {
@@ -5786,7 +5794,9 @@ for solid CAD anyway.
         _toPlanePolygons: function(options) {
             var flipped = options.flipped || false;
             // reference connector for transformation
-            var origin = [0, 0, 0], defaultAxis = [0, 0, 1], defaultNormal = [0, 1, 0];
+            var origin = [0, 0, 0],
+                defaultAxis = [0, 0, 1],
+                defaultNormal = [0, 1, 0];
             var thisConnector = new CSG.Connector(origin, defaultAxis, defaultNormal);
             // translated connector per options
             var translation = options.translation || origin;
@@ -5835,18 +5845,20 @@ for solid CAD anyway.
             // arguments: options.toConnector1, options.toConnector2, options.cag
             //     walls go from toConnector1 to toConnector2
             //     optionally, target cag to point to - cag needs to have same number of sides as this!
-            var origin = [0, 0, 0], defaultAxis = [0, 0, 1], defaultNormal = [0, 1, 0];
+            var origin = [0, 0, 0],
+                defaultAxis = [0, 0, 1],
+                defaultNormal = [0, 1, 0];
             var thisConnector = new CSG.Connector(origin, defaultAxis, defaultNormal);
             // arguments:
             var toConnector1 = options.toConnector1;
             // var toConnector2 = new CSG.Connector([0, 0, -30], defaultAxis, defaultNormal);
             var toConnector2 = options.toConnector2;
             if (!(toConnector1 instanceof CSG.Connector && toConnector2 instanceof CSG.Connector)) {
-                throw('could not parse CSG.Connector arguments toConnector1 or toConnector2');
+                throw ('could not parse CSG.Connector arguments toConnector1 or toConnector2');
             }
             if (options.cag) {
                 if (options.cag.sides.length != this.sides.length) {
-                    throw('target cag needs same sides count as start cag');
+                    throw ('target cag needs same sides count as start cag');
                 }
             }
             // target cag is same as this unless specified
@@ -5859,9 +5871,11 @@ for solid CAD anyway.
             var polygons = [];
             vps1.forEach(function(vp1, i) {
                 polygons.push(new CSG.Polygon([
-                    new CSG.Vertex(vps2[i][1]), new CSG.Vertex(vps2[i][0]), new CSG.Vertex(vp1[0])]));
+                    new CSG.Vertex(vps2[i][1]), new CSG.Vertex(vps2[i][0]), new CSG.Vertex(vp1[0])
+                ]));
                 polygons.push(new CSG.Polygon([
-                    new CSG.Vertex(vps2[i][1]), new CSG.Vertex(vp1[0]), new CSG.Vertex(vp1[1])]));
+                    new CSG.Vertex(vps2[i][1]), new CSG.Vertex(vp1[0]), new CSG.Vertex(vp1[1])
+                ]));
             });
             return polygons;
         },
@@ -5973,7 +5987,8 @@ for solid CAD anyway.
                 for (var ii = i + 1; ii < numsides; ii++) {
                     var side1 = this.sides[ii];
                     if (CAG.linesIntersect(side0.vertex0.pos, side0.vertex1.pos, side1.vertex0.pos, side1.vertex1.pos)) {
-                        if (debug) { OpenJsCad.log(side0); OpenJsCad.log(side1);}
+                        if (debug) { OpenJsCad.log(side0);
+                            OpenJsCad.log(side1); }
                         return true;
                     }
                 }
@@ -6119,7 +6134,7 @@ for solid CAD anyway.
             var twistangle = CSG.parseOptionAsFloat(options, "twistangle", 0);
             var twiststeps = CSG.parseOptionAsInt(options, "twiststeps", CSG.defaultResolution3D);
             if (offsetVector.z == 0) {
-                throw('offset cannot be orthogonal to Z axis');
+                throw ('offset cannot be orthogonal to Z axis');
             }
             if (twistangle == 0 || twiststeps < 1) {
                 twiststeps = 1;
@@ -6128,17 +6143,23 @@ for solid CAD anyway.
 
             var polygons = [];
             // bottom and top
-            polygons = polygons.concat(this._toPlanePolygons({translation: [0, 0, 0],
-                normalVector: normalVector, flipped: !(offsetVector.z < 0)}));
-            polygons = polygons.concat(this._toPlanePolygons({translation: offsetVector,
-                normalVector: normalVector.rotateZ(twistangle), flipped: offsetVector.z < 0}));
+            polygons = polygons.concat(this._toPlanePolygons({
+                translation: [0, 0, 0],
+                normalVector: normalVector,
+                flipped: !(offsetVector.z < 0)
+            }));
+            polygons = polygons.concat(this._toPlanePolygons({
+                translation: offsetVector,
+                normalVector: normalVector.rotateZ(twistangle),
+                flipped: offsetVector.z < 0
+            }));
             // walls
             for (var i = 0; i < twiststeps; i++) {
                 var c1 = new CSG.Connector(offsetVector.times(i / twiststeps), [0, 0, offsetVector.z],
-                    normalVector.rotateZ(i * twistangle/twiststeps));
+                    normalVector.rotateZ(i * twistangle / twiststeps));
                 var c2 = new CSG.Connector(offsetVector.times((i + 1) / twiststeps), [0, 0, offsetVector.z],
-                    normalVector.rotateZ((i + 1) * twistangle/twiststeps));
-                polygons = polygons.concat(this._toWallPolygons({toConnector1: c1, toConnector2: c2}));
+                    normalVector.rotateZ((i + 1) * twistangle / twiststeps));
+                polygons = polygons.concat(this._toWallPolygons({ toConnector1: c1, toConnector2: c2 }));
             }
 
             return CSG.fromPolygons(polygons);
@@ -6167,16 +6188,16 @@ for solid CAD anyway.
                 // building in the direction of axis vector
                 var connE = new CSG.Connector(origin, axisV.rotateZ(-alpha), normalV);
                 polygons = polygons.concat(
-                    this._toPlanePolygons({toConnector: connS, flipped: true}));
+                    this._toPlanePolygons({ toConnector: connS, flipped: true }));
                 polygons = polygons.concat(
-                    this._toPlanePolygons({toConnector: connE}));
+                    this._toPlanePolygons({ toConnector: connE }));
             }
-            var connT1 = connS, connT2;
-            var step = alpha/resolution;
+            var connT1 = connS,
+                connT2;
+            var step = alpha / resolution;
             for (var a = step; a <= alpha + EPS; a += step) {
                 connT2 = new CSG.Connector(origin, axisV.rotateZ(-a), normalV);
-                polygons = polygons.concat(this._toWallPolygons(
-                    {toConnector1: connT1, toConnector2: connT2}));
+                polygons = polygons.concat(this._toWallPolygons({ toConnector1: connT1, toConnector2: connT2 }));
                 connT1 = connT2;
             }
             return CSG.fromPolygons(polygons).reTesselated();
@@ -6195,7 +6216,7 @@ for solid CAD anyway.
                 function mappoint(p) {
                     var tag = p.x + " " + p.y;
                     if (!(tag in pointcount)) pointcount[tag] = 0;
-                    pointcount[tag] ++;
+                    pointcount[tag]++;
                 }
                 mappoint(side.vertex0.pos);
                 mappoint(side.vertex1.pos);
@@ -6207,7 +6228,7 @@ for solid CAD anyway.
                 }
             }
             var area = this.area();
-            if (area < EPS*EPS) {
+            if (area < EPS * EPS) {
                 errors.push("Area is " + area);
             }
             if (errors.length > 0) {
@@ -6420,7 +6441,7 @@ for solid CAD anyway.
     };
 
     CAG.Vertex.fromObject = function(obj) {
-        return new CAG.Vertex(new CSG.Vector2D(obj.pos._x,obj.pos._y));
+        return new CAG.Vertex(new CSG.Vector2D(obj.pos._x, obj.pos._y));
     };
 
     CAG.Vertex.prototype = {
@@ -6447,33 +6468,33 @@ for solid CAD anyway.
     CAG.Side.fromObject = function(obj) {
         var vertex0 = CAG.Vertex.fromObject(obj.vertex0);
         var vertex1 = CAG.Vertex.fromObject(obj.vertex1);
-        return new CAG.Side(vertex0,vertex1);
+        return new CAG.Side(vertex0, vertex1);
     };
 
     CAG.Side._fromFakePolygon = function(polygon) {
         polygon.vertices.forEach(function(v) {
-            if (!((v.pos.z >= -1.001) && (v.pos.z < -0.999)) && !((v.pos.z >= 0.999) && (v.pos.z < 1.001))) {
-                throw("Assertion failed: _fromFakePolygon expects abs z values of 1");
-            }
-        })
-        // this can happen based on union, seems to be residuals -
-        // return null and handle in caller
+                if (!((v.pos.z >= -1.001) && (v.pos.z < -0.999)) && !((v.pos.z >= 0.999) && (v.pos.z < 1.001))) {
+                    throw ("Assertion failed: _fromFakePolygon expects abs z values of 1");
+                }
+            })
+            // this can happen based on union, seems to be residuals -
+            // return null and handle in caller
         if (polygon.vertices.length < 4) {
             return null;
         }
         var reverse = false;
         var vert1Indices = [];
         var pts2d = polygon.vertices.filter(function(v, i) {
-            if (v.pos.z > 0) {
-                vert1Indices.push(i);
-                return true;
-            }
-        })
-        .map(function(v) {
-            return new CSG.Vector2D(v.pos.x, v.pos.y);
-        });
+                if (v.pos.z > 0) {
+                    vert1Indices.push(i);
+                    return true;
+                }
+            })
+            .map(function(v) {
+                return new CSG.Vector2D(v.pos.x, v.pos.y);
+            });
         if (pts2d.length != 2) {
-            throw('Assertion failed: _fromFakePolygon: not enough points found')
+            throw ('Assertion failed: _fromFakePolygon: not enough points found')
         }
         var d = vert1Indices[1] - vert1Indices[0];
         if (d == 1 || d == 3) {
@@ -6481,7 +6502,7 @@ for solid CAD anyway.
                 pts2d.reverse();
             }
         } else {
-            throw('Assertion failed: _fromFakePolygon: unknown index ordering');
+            throw ('Assertion failed: _fromFakePolygon: unknown index ordering');
         }
         var result = new CAG.Side(new CAG.Vertex(pts2d[0]), new CAG.Vertex(pts2d[1]));
         return result;
@@ -6559,12 +6580,12 @@ for solid CAD anyway.
         getCAG: function(sourcecag) {
             var _this = this;
             var newsides = sourcecag.sides.map(function(side) {
-                return _this.getSide(side);
-            })
-            // remove bad sides (mostly a user input issue)
-            .filter(function(side) {
-                return side.length() > 1e-5;
-            });
+                    return _this.getSide(side);
+                })
+                // remove bad sides (mostly a user input issue)
+                .filter(function(side) {
+                    return side.length() > 1e-5;
+                });
             return CAG.fromSides(newsides);
         }
     };
@@ -6606,4 +6627,8 @@ for solid CAD anyway.
 
     module.CSG = CSG;
     module.CAG = CAG;
-})(this); //module to export to
+})(CSG); //module to export to
+ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined')
+    module.exports = CSG;
+  else
+    self.CSG = CSG;

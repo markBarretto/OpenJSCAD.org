@@ -2143,7 +2143,7 @@ function parseAsciiSTL(stl,fn) {
         var vertexIndex = 0;
         var err = 0;
         
-        match = stl.match(patt);
+        var match = stl.match(patt);
         if (match == null) continue;
         for (var i = 0; i < match.length; i++) {
             //if(converted%100==0) status('stl to jscad: converted '+converted+' out of '+match.length+ ' facets');
@@ -2260,7 +2260,7 @@ function vt2jscad(v,t,n,c) {     // vertices, triangles, normals and colors
 //+ Jonas Raoni Soares Silva
 //@ http://jsfromhell.com/classes/binary-parser [rev. #1]
 
-BinaryReader = function (data) {
+var BinaryReader = function (data) {
    this._buffer = data;
    this._pos = 0;
 };
@@ -2538,7 +2538,7 @@ Changelog:
  - initial release
 **/
 
-sprintf = (function() {
+var sprintf = (function() {
 	function get_type(variable) {
 		return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();
 	}
@@ -2657,12 +2657,12 @@ sprintf = (function() {
 	return str_format;
 })();
 
-vsprintf = function(fmt, argv) {
+var vsprintf = function(fmt, argv) {
 	argv.unshift(fmt);
 	return sprintf.apply(null, argv);
 };
 
-_getParameterDefinitions = function(param) {         // used for openjscad CLI only
+var _getParameterDefinitions = function(param) {         // used for openjscad CLI only
    if(typeof getParameterDefinitions!=='undefined') {
       var p = {};
       var pa = getParameterDefinitions();
@@ -2694,7 +2694,8 @@ _getParameterDefinitions = function(param) {         // used for openjscad CLI o
 // -------------------------------------------------------------------------------------------------
 
 if(typeof module !== 'undefined') {    // we are used as module in nodejs require()
-   var CSG = require(global.lib+'./csg.js').CSG;
+   //var CSG = require(global.lib+'./csg.js').CSG;
+   var CSG = csg.CSG;
    //console.log("lib="+global.lib);
 
   module.exports = { 

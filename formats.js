@@ -26,6 +26,10 @@ if(typeof module !== 'undefined') {    // used via nodejs
     CSG = require(lib+'csg.js').CSG;
     CAG = require(lib+'csg.js').CAG;
     Blob = require(lib+'Blob.js').Blob;
+} else if(typeof self !== 'undefined') { //called through webworker
+    csg = self.CSG
+    CAG = csg.CAG
+    CSG = csg.CSG
 }
 
 ////////////////////////////////////////////

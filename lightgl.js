@@ -1579,7 +1579,7 @@ var GL = (function() {
 	function off(element, name, callback) {
 		element.removeEventListener(name, callback);
 	}
-
+/*
 	on(document, 'keydown', function(e) {
 		if(!e.altKey && !e.ctrlKey && !e.metaKey) {
 			var key = mapKeyCode(e.keyCode);
@@ -1595,7 +1595,7 @@ var GL = (function() {
 			GL.keys[e.keyCode] = false;
 		}
 	});
-
+*/
 	function addOtherMethods() {
 		// ### Multiple contexts
 		//

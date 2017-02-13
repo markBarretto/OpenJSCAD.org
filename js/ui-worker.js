@@ -9,8 +9,11 @@
 //
 // See worker-conversion.js for the conversion process
 //
+
+var Conversion = require('worker!./worker-conversion.js');
+
 OpenJsCad.createConversionWorker = function() {
-  var w = new Worker('js/worker-conversion.js');
+  var w = new Conversion();//new Worker('js/worker-conversion.js');
 // when the worker finishes
 // - put the converted source into the editor
 // - save the converted source into the cache (gMemFs)
@@ -20,13 +23,14 @@ OpenJsCad.createConversionWorker = function() {
         var data = e.data;
         if ('filename' in data && 'source' in data) {
           //console.log("editor"+data.source+']');
-          putSourceInEditor(data.source,data.filename);
+          //putSourceInEditor(data.source,data.filename);
         }
         if ('filename' in data && 'converted' in data) {
           //console.log("processor: "+data.filename+" ["+data.converted+']');
           if ('cache' in data && data.cache == true) {
-            saveScript(data.filename,data.converted);
+            //saveScript(data.filename,data.converted);
           }
+          
           gProcessor.setJsCad(data.converted,data.filename);
         }
       }
