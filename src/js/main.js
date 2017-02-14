@@ -7,7 +7,7 @@ const openjscadElem = Object.create(HTMLElement.prototype);
 //instantiate variables
 let options, data, fileInput, viewer;
 
-let printerDimensions = [100,100,100];
+let printerDimensions = [100, 100, 100];
 
 // Lifecycle callbacks
 openjscadElem.createdCallback = function() {
@@ -40,18 +40,18 @@ openjscadElem.createdCallback = function() {
 
     console.log(OpenJsCad);
 
-//    require('expose?OpenJsCad!../../js/worker-conversion.js');
+    //    require('expose?OpenJsCad!../../js/worker-conversion.js');
     console.log(OpenJsCad)
-//    CSG = require('imports?CSG=>{}!../../csg.js');
+        //    CSG = require('imports?CSG=>{}!../../csg.js');
 
-   // require('expose?OpenScad!../../openscad.js');
+    // require('expose?OpenScad!../../openscad.js');
 
 
     //interface element declaration
     options = t.shadowRoot.querySelector('#options');
     fileInput = t.shadowRoot.querySelector('input[name="upload"]');
 
-    viewer = new Viewer.default(printerDimensions, {file: fileInput, options: options});
+    viewer = new Viewer.default(printerDimensions, { file: fileInput, options: options });
 
 };
 
@@ -60,8 +60,8 @@ openjscadElem.attachedCallback = function() {
     // good place to add event listeners
     var t = this;
     viewer.input();
-    
-    gProcessor = new OpenJsCad.Processor(t.shadowRoot.getElementById("viewerContext"));
+
+    gProcessor = new OpenJsCad.Processor(t.shadowRoot.getElementById("viewerContext"), undefined, t.shadowRoot);
 
 };
 

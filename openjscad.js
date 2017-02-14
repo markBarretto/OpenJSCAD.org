@@ -807,7 +807,13 @@ var OpenJsCad = {};
         return params;
     };
 
-    OpenJsCad.Processor = function(containerdiv, options) {
+    OpenJsCad.Processor = function(containerdiv, options, container) {
+        if (typeof container !== "undefined") {
+            this.container = container;
+        } else {
+            this.container = document;
+        }
+
         if (options === undefined) options = {};
         // the default options
         this.opts = {
@@ -1086,19 +1092,19 @@ var OpenJsCad = {};
         },
 
         updateSelection: function() {
-            var range = document.getElementById("startRange");
+            var range = this.container.getElementById("startRange");
             range.min = 0;
             range.max = this.currentObjects.length - 1;
             range.value = 0;
-            range = document.getElementById("endRange");
+            range = this.container.getElementById("endRange");
             range.min = 0;
             range.max = this.currentObjects.length - 1;
             range.value = this.currentObjects.length - 1;
         },
 
         updateView: function() {
-            var startpoint = parseInt(document.getElementById("startRange").value);
-            var endpoint = parseInt(document.getElementById("endRange").value);
+            var startpoint = parseInt(this.container.getElementById("startRange").value);
+            var endpoint = parseInt(this.container.getElementById("endRange").value);
             if (startpoint == this.selectStartPoint && endpoint == this.selectEndPoint) { return; }
 
             // build a list of objects to view
@@ -1800,24 +1806,27 @@ var OpenJsCad = {};
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     var GL = require('exports?GL!./lightgl.js');
-/*
-    var UiWorker = require('exports?OpenJsCad!./js/ui-worker.js');
-    var JsCadFunc = require('exports?OpenJsCad!./js/jscad-function.js');
-    var JsCadWorker = require('exports?OpenJsCad!./js/jscad-worker.js');
+    var csg = require('./csg.js');
+    var CSG = csg.CSG;
+    var CAG = csg.CAG;
+    /*
+        var UiWorker = require('exports?OpenJsCad!./js/ui-worker.js');
+        var JsCadFunc = require('exports?OpenJsCad!./js/jscad-function.js');
+        var JsCadWorker = require('exports?OpenJsCad!./js/jscad-worker.js');
 
-    function Load(importObj) {
-        for (var prop in importObj) {
-            if (importObj.hasOwnProperty(prop)) {
-                OpenJsCad.OpenJsCad[prop] = importObj[prop];
+        function Load(importObj) {
+            for (var prop in importObj) {
+                if (importObj.hasOwnProperty(prop)) {
+                    OpenJsCad.OpenJsCad[prop] = importObj[prop];
+                }
             }
         }
-    }
 
-    Load(UiWorker);
-    Load(JsCadFunc);
-    Load(JsCadWorker);
+        Load(UiWorker);
+        Load(JsCadFunc);
+        Load(JsCadWorker);
 
-    console.log(OpenJsCad.OpenJsCad);*/
+        console.log(OpenJsCad.OpenJsCad);*/
     module.exports = OpenJsCad.OpenJsCad;
 } else {
     self.OpenJsCad = OpenJsCad;
