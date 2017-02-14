@@ -1809,6 +1809,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     var csg = require('./csg.js');
     var CSG = csg.CSG;
     var CAG = csg.CAG;
+    var formats = require('./formats.js');
     /*
         var UiWorker = require('exports?OpenJsCad!./js/ui-worker.js');
         var JsCadFunc = require('exports?OpenJsCad!./js/jscad-function.js');
